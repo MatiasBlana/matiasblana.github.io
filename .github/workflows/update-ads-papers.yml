@@ -1,0 +1,26 @@
+name: Update latest ADS papers
+on:
+  schedule:
+    - cron: "17 8 * * 1"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  update-papers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Fetch latest ADS papers
+        env:
+          ADS_TOKEN: ${{ secrets.ADS_TOKEN }}
+          ADS_AUTHOR_QUERY: 'author:"Blaña, Matias" OR author:"Blaña, M"'
+          ADS_N: "6"
+        run: python scripts/update_ads.py
+      - name: Commit updated latest-papers.json
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update latest ADS papers"
+          file_pattern: latest-papers.json
